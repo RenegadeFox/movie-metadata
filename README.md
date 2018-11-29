@@ -1,5 +1,5 @@
 <p align="center">
-    <img width="40%" src="https://raw.githubusercontent.com/rootr/movie-metadata/Programmatic-Development/img/movie-metadata.png" alt="movie-metadata title image">
+    <img width="40%" src="https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata.png" alt="movie-metadata title image">
 </p>
 
 <p align="center">
@@ -39,22 +39,22 @@ This is how you can use `movie-metadata`.
 
 ### CLI Usage
 How to use `movie-metadata` with the Command-Line Interface (CLI).
->*Assuming that `movie-metadata` is globally installed*
+>Note: *Assuming that `movie-metadata` is globally installed*
 
 **Example**
 
 ```bash
-$ movie-metadata --key YOUR_API_KEY  /Users/me/moviesList.json
+$ getmetadata --key YOUR_API_KEY  /Users/me/moviesList.json
 ```
 This will create a `moviesList-metadata.json` and `moviesList-notfound.json` file in the `/Users/me/` directory. 
 
->*The `moviesList-notfound.json` file is only created if some movies in the list were not found on the omdb API server.*
+>Note: *The `moviesList-notfound.json` file is only created if some movies in the list were not found on the omdb API server.*
 
 The `moviesList-metadata.json` file will contain an Array of Objects containing each movies respective metadata fetched from omdb's API server [omdbapi.com](https://www.omdbapi.com).
 
 ### Programmatic usage
 How to use `movie-metadata` from within a `.js` file
->*Assuming that `movie-metadata` is locally installed*
+>Note: *Assuming that `movie-metadata` is locally installed*
 
 **Example: Async/Await**
 
@@ -127,6 +127,7 @@ getMetadata({
 Below is a reference to all of `movie-metadata`'s API properties.
 
 ## CLI API
+This is the API when `movie-metadata` is installed globally, and is used within the CLI.
 
 ### `--key|-k`
 *omdb API key*
@@ -137,9 +138,9 @@ Below is a reference to all of `movie-metadata`'s API properties.
 **Example**
 
 ```bash
-$ movie-metadata -k YOUR_API_KEY
+$ getmetadata -k YOUR_API_KEY
 // or
-$ movie-metadata --key YOUR_API_KEY
+$ getmetadata --key YOUR_API_KEY
 ```
 
 ### `--source|-s`
@@ -151,9 +152,9 @@ $ movie-metadata --key YOUR_API_KEY
 **Example**
 
 ```bash
-$ movie-metadata -k YOUR_API_KEY -s /path/to/movies/list.json
+$ getmetadata -k YOUR_API_KEY -s /path/to/movies/list.json
 // or
-$ movie-metadata -k YOUR_API_KEY --source /path/to/movies/list.json
+$ getmetadata -k YOUR_API_KEY --source /path/to/movies/list.json
 ```
 
 ### `--progress|-p`
@@ -165,14 +166,15 @@ $ movie-metadata -k YOUR_API_KEY --source /path/to/movies/list.json
 **Example**
 
 ```bash
-$ movie-metadata -k YOUR_API_KEY -s /movies/list.json -p false
+$ getmetadata -k YOUR_API_KEY -s /movies/list.json -p false
 // or
-$ movie-metadata -k YOUR_API_KEY -s /movies/list.json --progress false
+$ getmetadata -k YOUR_API_KEY -s /movies/list.json --progress false
 ```
+![CLI Progress Bar Example](https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Progress Parameter.gif)
 
 ### `--verbose|-v`
 *Whether or not to run verbosely*
-> This disables `--progress` parameter, if enabled
+>Note: This disables `--progress` parameter, if enabled
 
 - **Default**: `false`
 - **Type**: `Boolean`
@@ -180,42 +182,44 @@ $ movie-metadata -k YOUR_API_KEY -s /movies/list.json --progress false
 **Example**
 
 ```bash
-$ movie-metadata -k YOUR_API_KEY -s /movies/list.json -v
+$ getmetadata -k YOUR_API_KEY -s /movies/list.json -v
 // or
-$ movie-metadata -k YOUR_API_KEY -s /movies/list.json --verbose
+$ getmetadata -k YOUR_API_KEY -s /movies/list.json --verbose
 ```
 
 ### `--destination|-d`
 *Where to save the JSON file with metadata*
 
-- **Default**: `Same directory as source with '-metadata' appended`
+- **Default**: `Same path as source with '-metadata' appended`
 - **Type**: `String`
 
 **Example**
 
 ```bash
-$ movie-metadata -k YOUR_API_KEY -s /movies/list.json -d /movies/metadata.json
+$ getmetadata -k YOUR_API_KEY -s /movies/list.json -d /movies/metadata.json
 // or
-$ movie-metadata -k YOUR_API_KEY -s /movies/list.json --destination /movies/metadata.json
+$ getmetadata -k YOUR_API_KEY -s /movies/list.json --destination /movies/metadata.json
 ```
 
 ### `--notfound|-n`
 *Where to save the JSON file that holds the movies that were not found on the omdb API server*
 
-- **Default**: `Same directory as source with '-notfound' appended`
+>Note: the `notfound` file will only be create if there was any movies that were not found on the omdb API server.
+
+- **Default**: `Same path as source with '-notfound' appended`
 - **Type**: `String`
 
 **Example**
 
 ```bash
-$ movie-metadata -k YOUR_API_KEY -s /movies/list.json -n /movies/metadata.json
+$ getmetadata -k YOUR_API_KEY -s /movies/list.json -n /movies/metadata.json
 // or
-$ movie-metadata -k YOUR_API_KEY -s /movies/list.json --notfound /movies/notfound.json
+$ getmetadata -k YOUR_API_KEY -s /movies/list.json --notfound /movies/notfound.json
 ```
 
 ### `--overwrite|-o`
 *Whether or not to overwrite the source file with the metadata JSON data*
->If enabled, this disables `destination` parameter.
+>Note: If enabled, this disables `destination` parameter.
 
 - **Default**: `false`
 - **Type**: `Boolean`
@@ -223,13 +227,207 @@ $ movie-metadata -k YOUR_API_KEY -s /movies/list.json --notfound /movies/notfoun
 **Example**
 
 ```bash
-$ movie-metadata -k YOUR_API_KEY -s /movies/list.json -o
+$ getmetadata -k YOUR_API_KEY -s /movies/list.json -o
 // or
-$ movie-metadata -k YOUR_API_KEY -s /movies/list.json --overwrite
+$ getmetadata -k YOUR_API_KEY -s /movies/list.json --overwrite
 ```
 ## Programmatic API
+This is the API when `movie-metadata` is installed locally, and is used within a `.js` file.
 
->Coming Soon...
+### `key`
+*[omdb](http://www.omdbapi.com/apikey.aspx) API key*
+
+- **Default**: `none`
+- **Type**: `String`
+
+**Example**
+
+```js
+const { getMetadata } = require('movie-metadata')
+
+getMetadata({
+    key: 'YOUR_API_KEY',
+    source: 'path/to/list/of/movies.json'
+}).then(metadata => {
+  // Do stuff with the Array of movies (with metadata)
+})
+```
+
+### `source`
+*Path to JSON file, Array, or list of movie titles to fetch metadata for*
+
+- **Default**: `none`
+- **Type**: `String|Array|JSON file path`
+
+>Note: If a string is provided and it is not a path to a JSON file, then the "splitter" parameter is used to `split` the `String` into an `Array` of `Strings`
+
+**Example: JSON file**
+
+```js
+const { getMetadata } = require('movie-metadata')
+
+getMetadata({
+    key: 'YOUR_API_KEY',
+    source: 'path/to/list/of/movies.json'
+}).then(metadata => {
+  // Do stuff with the Array of movies (with metadata)
+})
+
+// movies.json file format
+[
+    "Ocean's Eight",
+    "Ralph Breaks the Internet"
+    // ...
+]
+```
+**Example: Array (inline)**
+
+```js
+const { getMetadata } = require('movie-metadata')
+
+getMetadata({
+    key: 'YOUR_API_KEY',
+    source: ["Ocean's Eight", "Ralph Breaks the Internet", "Pulp Fiction"]
+}).then(metadata => {
+  // Do stuff with the Array of movies (with metadata)
+})
+```
+
+### `progress`
+*Whether or not to show a CLI progress bar while downloading the metadata*
+
+- **Default**: `true`
+- **Type**: `Boolean`
+
+**Example**
+
+```js
+const { getMetadata } = require('movie-metadata')
+
+getMetadata({
+    key: 'YOUR_API_KEY',
+    source: 'path/to/list/of/movies.json',
+    progress: true
+}).then(metadata => {
+  // Do stuff with the Array of movies (with metadata)
+})
+```
+This will display a CLI progress bar using the [`cli-progress`](https://www.npmjs.com/package/cli-progress) module. 
+
+![CLI Progress Bar Example](https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Progress Parameter.gif)
+
+### `verbose`
+*Whether or not to run verbosely*
+> Note: This disables `progress` parameter, if enabled
+
+- **Default**: `false`
+- **Type**: `Boolean`
+
+**Example**
+
+```js
+const { getMetadata } = require('movie-metadata')
+
+getMetadata({
+    key: 'YOUR_API_KEY',
+    source: 'path/to/list/of/movies.json',
+    verbose: true
+}).then(metadata => {
+  // Do stuff with the Array of movies (with metadata)
+})
+```
+This will output each movie title to the console, along with whether or not it was found.
+
+![Verbose Mode Example](https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Verbose Parameter.png)
+
+### `destination`
+*Where to save the fetched Array of movie metadata*
+
+>Note: If set to false, the fetched movie metadata will be returned as a Promise of an Object with two properties `fetchedMetadata`:`[Object]` and `notFoundMovies`:`[String]`.
+
+- **Default**: `Same path as source with '-metadata' appended`
+- **Type**: `String|Boolean`
+
+**Example**
+
+```js
+const { getMetadata } = require('movie-metadata')
+
+getMetadata({
+    key: 'YOUR_API_KEY',
+    source: 'path/to/list/of/movies.json',
+    destination: false
+}).then(metadata => {
+  // Do stuff with the Array of movies (with metadata)
+})
+```
+
+### `notfound`
+*Where to save the JSON file that holds the movies that were not found on the omdb API server*
+
+>Note: If set to false, the fetched movie metadata will be returned as a Promise of an Object with two properties `fetchedMetadata`:`[Object]` and `notFoundMovies`:`[String]`.
+
+- **Default**: `Same path as source with '-notfound' appended`
+- **Type**: `String|Boolean`
+
+**Example**
+
+```js
+const { getMetadata } = require('movie-metadata')
+
+getMetadata({
+    key: 'YOUR_API_KEY',
+    source: 'path/to/list/of/movies.json',
+    notfound: false
+}).then(metadata => {
+  // Do stuff with the Array of movies (with metadata)
+})
+```
+
+### `overwrite`
+*Whether or not to overwrite the source file with the metadata JSON data*
+>Note: If enabled, this disables `destination` parameter. This is automatically disabled if `destination` parameter is disabled (`false`)
+
+- **Default**: `false`
+- **Type**: `Boolean`
+
+**Example**
+
+```js
+const { getMetadata } = require('movie-metadata')
+
+getMetadata({
+    key: 'YOUR_API_KEY',
+    source: 'path/to/list/of/movies.json',
+    overwrite: true
+}).then(metadata => {
+  // Do stuff with the Array of movies (with metadata)
+})
+```
+
+### `splitter`*(Not Yet Working)*
+*What character to use to split the `source` `String` into an `Array`*
+>Note: This is only applied if the `source` parameter is not a JSON file, or is a plain `String`.
+
+>Note: As of version `1.0.3` this feature is not completely working yet. If the `source` parameter is a file, it must be a `JSON` file
+
+- **Default**: `\n`
+- **Type**: `String`
+
+**Example**
+
+```js
+const { getMetadata } = require('movie-metadata')
+
+getMetadata({
+    key: 'YOUR_API_KEY',
+    source: "Lucy::Se7en::Dead Man's Chest::Ocean's Eleven",
+    splitter: '::'
+}).then(metadata => {
+  // Do stuff with the Array of movies (with metadata)
+})
+```
+<!--This will split the `movies.txt` file into an `Array`, in which each newline is a `String` in the `Array`-->
 
 ## Built With
 

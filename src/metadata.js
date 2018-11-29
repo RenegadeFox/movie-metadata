@@ -232,6 +232,9 @@ module.exports = async (userOptions) => {
      * @type {Array}
      */
     movieTitles = await fs.readJson(options.source).catch(err => console.error(err))
+  } else if (typeof movieTitles === 'string') {
+    // If {source} is not a JSON file, split it into an Array based on the {splitter} parameter
+    movieTitles = movieTitles.split(options.splitter)
   }
   // End - Check if {source} is a JSON path
 
