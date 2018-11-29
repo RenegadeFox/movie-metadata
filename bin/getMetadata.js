@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 const { getMetadata } = require('../src/')
 const commandLineArgs = require('command-line-args')
 
