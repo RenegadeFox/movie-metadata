@@ -111,6 +111,7 @@ notFoundMovies: [] }
 
 ```javascript
 const { getMetadata } = require('movie-metadata')
+
 getMetadata({
     key: 'YOUR_API_KEY',
     source: ['dead man\'s chest', 'at world\'s end', 'ralph breaks the internet', 'Ocean\'s Eight']
@@ -199,7 +200,7 @@ $ movie-metadata -k YOUR_API_KEY -s /movies/list.json --destination /movies/meta
 ```
 
 ### `--notfound|-n`
-*Where to save the JSON file that were not found on the omdb API server*
+*Where to save the JSON file that holds the movies that were not found on the omdb API server*
 
 - **Default**: `Same directory as source with '-notfound' appended`
 - **Type**: `String`
@@ -253,7 +254,7 @@ We use [SemVer](http://semver.org/) for versioning.
 ## License
 
 This project is licensed under the CC BY-NC 4.0 License - see the [LICENSE](LICENSE) file for details.
-`movie-metadata` is not affiliated or endorsed by [omdbapi.com](https://www.omdbapi.com) in any way. An [API](http://www.omdbapi.com/apikey.aspx) (free) must be obtained prior to using this module.
+`movie-metadata` is not affiliated or endorsed by [omdbapi.com](https://www.omdbapi.com) in any way. An [API Key](http://www.omdbapi.com/apikey.aspx) (free) must be obtained prior to using this module.
 
 ## Future Additions
 * Future additions/features for `movie-metadata`
