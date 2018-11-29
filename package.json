@@ -20,7 +20,7 @@
     "tap": "^12.0.1"
   },
   "author": "Martin Cox <martincox99@me.com>",
-  "license": "MIT",
+  "license": "CC BY-NC 4.0",
   "bin": {
     "movie-metadata": "./bin/"
   },

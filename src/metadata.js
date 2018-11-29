@@ -102,7 +102,26 @@ module.exports = async (userOptions) => {
       * @default 120000 (2 minutes)
       * @type    {Number}
       */
-     timeout: 120000
+     timeout: 120000,
+
+     /**
+      * What String to use to split {source} into an Arraym, if it is a string
+      * and not a JSON file path or an Array.
+      *
+      * @default '\n' (newline)
+      * @type    {String}
+      */
+     splitter: '\n',
+
+     /**
+      * Method to call everytime metadata is either successfully fetched or
+      * the movie is not found. Takes an Object with properties:
+      * {
+      *   movie: fetchedOrNotFoundMovie // Object|String,
+      *   status: true|false            // Boolean
+      * }
+      */
+     onUpdate() {}
    }
 
   /**
@@ -112,11 +131,11 @@ module.exports = async (userOptions) => {
    */
   const options = _.defaults(userOptions, _defaults)
 
-  // Check if {source} option is missing or not a JSON file
-  if(typeof options.source === 'undefined' || options.source.indexOf('.json') === -1) {
-    throw new Error('\x1b[31m[MISSING PARAMETER:\x1b[0m The "source" parameter is required and must be a JSON file!]')
+  // Check if {source} option is missing
+  if(typeof options.source === 'undefined') {
+    throw new Error('\x1b[31m[MISSING PARAMETER:\x1b[0m The "source" parameter is required!]')
   }
-  // End - Check if {source} option is missing or not a JSON file
+  // End - Check if {source} option is missing
 
   // Check if {key} option is missing
   if(typeof options.key === 'undefined') {
@@ -124,25 +143,33 @@ module.exports = async (userOptions) => {
   }
   // End - Check if {key} option is missing
 
-  /**
-   * Set {destination} to either {source} (if {overwite} is enabled) or
-   * {destination} with the placeholder replaced by {source} with its extension
-   *
-   * @type {String}
-   */
-  options.destination = options.overwrite
-    ? options.source
-      : options.destination.replace('%source%', options.source.replace(/\.json$/, ''))
+  // Check if {destination} and {notfound} parameters are not set to false (CLI)
+  if(options.destination && options.notfound) {
+    /**
+     * Set {destination} to either {source} (if {overwite} is enabled) or
+     * {destination} with the placeholder replaced by {source} with its extension
+     *
+     * @type {String}
+     */
+    options.destination = options.overwrite
+      ? options.source
+        : options.destination.replace('%source%', options.source.replace(/\.json$/, ''))
 
-  /**
-   * Set {notfound} to the {notfound} path with the placeholder replaced with the source filename
-   * {destination} with the placeholder replaced by {source} with its extension
-   *
-   * @type {String}
-   */
-  options.notfound = options.notfound.replace('%source%', options.source.replace(/\.json$/, ''))
+    /**
+     * Set {notfound} to the {notfound} path with the placeholder replaced with the source filename
+     * {destination} with the placeholder replaced by {source} with its extension
+     *
+     * @type {String}
+     */
+    options.notfound = options.notfound.replace('%source%', options.source.replace(/\.json$/, ''))
+  }
+  // End - Check if {destination} and {notfound} parameters are not set to false (CLI)
 
-  options.progress = !options.verbose
+  // Check if {progress} or {verbose} parameter is enabled
+  if(options.progress || options.verbose) {
+    options.progress = !options.verbose
+  }
+  // End - Check if {progress} or {verbose} parameter is enabled
 
   // Check if {progress} parameter is enabled and {verbose} is disabled
   if(options.progress && !options.verbose) {
@@ -150,26 +177,38 @@ module.exports = async (userOptions) => {
   }
   // End - Check if {progress} parameter is enabled and {verbose} is disabled
 
-  /**
-   * Resolve the {source} path
-   *
-   * @type {String}
-   */
-  options.source = resolve(options.source)
+  // Check if {source} parameter is a JSON path
+  if(typeof options.source === 'string' && /\.json$/i.test(options.source)) {
+    // End - Check if {source} parameter is a JSON path
+      /**
+       * Resolve the {source} path
+       *
+       * @type {String}
+       */
+      options.source = resolve(options.source)
+  }
 
-  /**
-   * Resolve the {destination} path
-   *
-   * @type {String}
-   */
-  options.destination = resolve(options.source, '../', options.destination)
+  // Check if {destination} parameter is a JSON path
+  if(typeof options.destination === 'string' && /\.json$/i.test(options.destination)) {
+    /**
+     * Resolve the {destination} path
+     *
+     * @type {String}
+     */
+    options.destination = resolve(options.source, '../', options.destination)
+  }
+  // End - Check if {destination} parameter is a JSON path
 
-  /**
-   * Resolve the {notfound} path
-   *
-   * @type {String}
-   */
-  options.notfound = resolve(options.source, '../', options.notfound)
+  // Check if {notfound} parameter is a JSON path
+  if(typeof options.notfound === 'string' && /\.json$/i.test(options.notfound)) {
+    /**
+     * Resolve the {notfound} path
+     *
+     * @type {String}
+     */
+    options.notfound = resolve(options.source, '../', options.notfound)
+  }
+  // End - Check if {notfound} parameter is a JSON path
 
   /**
    *****************************************************************************
@@ -177,12 +216,25 @@ module.exports = async (userOptions) => {
    *****************************************************************************
    */
 
-  /**
-   * Get the movie titles from the {source} JSON file
-   *
-   * @type {Array}
-   */
-  const movieTitles = await fs.readJson(options.source).catch(err => console.error(err))
+   /**
+    * Set {movieTitles} to the {source} parameter.
+    * (changed later if it's a JSON path instead of an Array)
+    *
+    * @type {Array|Path}
+    */
+   let movieTitles = options.source
+
+  // Check if {source} is a JSON path
+  if(typeof options.source === 'string' && /\.json$/i.test(options.source)) {
+    /**
+     * Get the movie titles from the {source} JSON file
+     *
+     * @type {Array}
+     */
+    movieTitles = await fs.readJson(options.source).catch(err => console.error(err))
+  }
+  // End - Check if {source} is a JSON path
+
 
   // Check if the {progress} parameter is enabled
   if(options.progress && !options.verbose) {
@@ -206,13 +258,19 @@ module.exports = async (userOptions) => {
    */
   const { updatedMovies, notFoundMovies } = await setMetadata(options, movieTitles)
 
-  /**
-   * Save the movie metadata to the {destination} parameter
-   *
-   *
-   * @type {Object}
-   */
-   await saveUpdatedMovies(options, { updatedMovies, notFoundMovies })
+
+  // Check if {destination} parameter is a JSON path
+  if((typeof options.destination === 'string' && /\.json$/i.test(options.destination)
+    &&(typeof options.notfound === 'string' && /\.json$/i.test(options.notfound)))) {
+    /**
+     * Save the movie metadata to the {destination} parameter
+     *
+     *
+     * @type {Object}
+     */
+     await saveUpdatedMovies(options, { updatedMovies, notFoundMovies })
+  }
+  // End - Check if {destination} parameter is a JSON path
 
    // Check if the {progress} parameter is enabled
    if(options.progress && !options.verbose) {
@@ -223,14 +281,22 @@ module.exports = async (userOptions) => {
    }
    // End - Check if the {progress} parameter is enabled
 
-  console.log('\n---------------------------------------------------------------')
-  console.log(`\x1b[32mSuccessfully fetched metadata for ${updatedMovies.length} of ${movieTitles.length} movies\x1b[0m`)
-  // Check if any movies couldn't be found
-  if(notFoundMovies.length > 0) {
-    console.log(`\x1b[31m${notFoundMovies.length} movies were not found on the server\x1b[0m`)
+  // Check if {verbose} or {progress} parameter is enabled
+  if(options.verbose || options.progress) {
+    console.log('\n---------------------------------------------------------------')
+    console.log(`\x1b[32mSuccessfully fetched metadata for ${updatedMovies.length} of ${movieTitles.length} movies\x1b[0m`)
+
+    // Check if any movies couldn't be found
+    if(notFoundMovies.length > 0) {
+      console.log(`\x1b[31m${notFoundMovies.length} movies were not found on the server\x1b[0m`)
+    }
+    // End - Check if any movies couldn't be found
+    console.log('---------------------------------------------------------------\n')
   }
-  // End - Check if any movies couldn't be found
-  console.log('---------------------------------------------------------------\n')
+  // End - Check if {verbose} or {progress} parameter is enabled
+
+  // @return {Object} Return the {updatedMovies}, and {notFoundMovies} Arrays/Dictionaries
+  return { fetchedMetadata: updatedMovies, notFoundMovies }
 }
 // End - {module.exports} Function
 
@@ -316,6 +382,14 @@ async function setMetadata(options, movieTitles) {
         console.log(`${(UPDATED_MOVIES.length + NOT_FOUND_MOVIES.length).toString().padStart(totalMoviesCount.toString().length, '0')}/${totalMoviesCount} - \x1b[32mUpdated:\x1b[0m\t"${fetchedMetadata.Title}"`)
       }
       // End - Check if {verbose} parameter is enabled
+
+      /**
+       * Run the {onUpdate} Method parameter, with the metadata just fetched, and
+       * whether or not the metadata was fetched (true) or not found (false)
+       *
+       * @type {Object}
+       */
+      options.onUpdate({ movie: fetchedMetadata, fetched: true })
     }
     else if(fetchedMetadata === 'Not Found') {
       // Add the not found movie title to the {NOT_FOUND_MOVIES} Array
@@ -326,6 +400,14 @@ async function setMetadata(options, movieTitles) {
         console.log(`${(UPDATED_MOVIES.length + NOT_FOUND_MOVIES.length).toString().padStart(totalMoviesCount.toString().length, '0')}/${totalMoviesCount} - \x1b[31mNot Found:\x1b[0m\t"${currentMovie}"`)
       }
       // End - Check if {verbose} parameter is enabled
+
+      /**
+       * Run the {onUpdate} Method parameter, with the metadata just fetched, and
+       * whether or not the metadata was fetched (true) or not found (false)
+       *
+       * @type {Object}
+       */
+      options.onUpdate({ movie: currentMovie, fetched: false })
     }
     // End - Ensure that there was no errors when retrieving the metadata
 

@@ -67,7 +67,20 @@ const options = {
    * @default 120000 (2 minutes)
    * @type    {Number}
    */
-  timeout: 120000
+  timeout: 120000,
+
+  /**
+   * omdb API key. Your omdb API key goes here
+   *
+   * @default {Required}
+   * @type    {String}
+   */
+  key: '[YOUR_OMDB_API_KEY]',
+
+  source: ['dead man\'s chest', 'at world\'s end', 'ralph breaks the internet', 'Ocean\'s Eight']
 }
 getMetadata(options)
+  .then(data => {
+    console.log(data)
+  })
   .catch(err => console.error(err))
