@@ -77,6 +77,12 @@ const options = {
    */
   key: '[YOUR_OMDB_API_KEY]',
 
+  /**
+   * Where to get the movie titles to search for
+   *
+   * @default {Required}
+   * @type    {Array}
+   */
   source: ['dead man\'s chest', 'at world\'s end', 'ralph breaks the internet', 'Ocean\'s Eight']
 }
 getMetadata(options)
