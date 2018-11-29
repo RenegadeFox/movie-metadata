@@ -170,7 +170,7 @@ $ getmetadata -k YOUR_API_KEY -s /movies/list.json -p false
 // or
 $ getmetadata -k YOUR_API_KEY -s /movies/list.json --progress false
 ```
-![CLI Progress Bar Example](https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Progress Parameter.gif)
+<img src="https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Progress Parameter.gif" />
 
 ### `--verbose|-v`
 *Whether or not to run verbosely*
@@ -186,6 +186,7 @@ $ getmetadata -k YOUR_API_KEY -s /movies/list.json -v
 // or
 $ getmetadata -k YOUR_API_KEY -s /movies/list.json --verbose
 ```
+<img src="https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Verbose Parameter.png" />
 
 ### `--destination|-d`
 *Where to save the JSON file with metadata*
@@ -314,7 +315,7 @@ getMetadata({
 ```
 This will display a CLI progress bar using the [`cli-progress`](https://www.npmjs.com/package/cli-progress) module. 
 
-![CLI Progress Bar Example](https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Progress Parameter.gif)
+<img src="https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Progress Parameter.gif" />
 
 ### `verbose`
 *Whether or not to run verbosely*
@@ -338,7 +339,7 @@ getMetadata({
 ```
 This will output each movie title to the console, along with whether or not it was found.
 
-![Verbose Mode Example](https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Verbose Parameter.png)
+<img src="https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Verbose Parameter.png" />
 
 ### `destination`
 *Where to save the fetched Array of movie metadata*
