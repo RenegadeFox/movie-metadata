@@ -8,7 +8,7 @@
 
 <p align="center">    
     <a href="https://github.com/rootr/movie-metadata/issues" title="Open Issues" alt="Open Issues"><img src="https://img.shields.io/github/issues-raw/rootr/movie-metadata.svg" /></a>
-    <a href="https://github.com/rootr/movie-metadata/blob/master/LICENSE" title="License" alt="License"><img src="https://img.shields.io/github/license/rootr/movie-metadata.svg" /></a>
+   <a href="https://github.com/rootr/movie-metadata/blob/master/LICENSE" title="License" alt="License"><img src="https://img.shields.io/badge/License-CC%20BY--NC%204.0-green.svg" /></a>
     <a href="https://npmjs.org/package/movie-metadata" title="View on npm" alt="View on npm"><img src="http://img.shields.io/npm/v/movie-metadata.svg?style=flat" /></a>
 </p>
 
