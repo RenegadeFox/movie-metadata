@@ -1,6 +1,6 @@
 {
 	"name": "movie-metadata",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "A simple utility to easily fetch movie metadata, given an Array of movie titles, using the API from the Open Movie Database.",
 	"main": "index.js",
 	"scripts": {

@@ -102,7 +102,7 @@ module.exports = async (userOptions) => {
       * @default 120000 (2 minutes)
       * @type    {Number}
       */
-     timeout: 120000,
+     timeout: 30000,
 
      /**
       * What String to use to split {source} into an Arraym, if it is a string
@@ -261,7 +261,6 @@ module.exports = async (userOptions) => {
    */
   const { updatedMovies, notFoundMovies } = await setMetadata(options, movieTitles)
 
-
   // Check if {destination} parameter is a JSON path
   if((typeof options.destination === 'string' && /\.json$/i.test(options.destination)
     &&(typeof options.notfound === 'string' && /\.json$/i.test(options.notfound)))) {
@@ -324,107 +323,127 @@ async function setMetadata(options, movieTitles) {
    *
    * @type {Object}
    */
-  let fetchedMetadata = {}
+  let fetchedMetadata = null
 
   /**
-   * Set to only movies that have not already been looked up / updated with metadata
+   * Run the {_setMetadata} function internally so we can recall it later (when aborting a connection)
    *
-   * @type {Array}
+   * @param       {Object} options     User options
+   * @param       {Array}  movieTitles Movie titles to fetch metadata for
    */
-  let remainingMovies = movieTitles.filter(currentMovie => {
-    return UPDATED_MOVIES.indexOf(currentMovie) === -1 && NOT_FOUND_MOVIES.indexOf(currentMovie) === -1
-  })
-
-  // Loop through each of the {remainingMovies}
-  for(let i=0;i<remainingMovies.length;i++) {
-
+  async function _setMetadata(options, movieTitles) {
     /**
-     * The current movie title in the loop
+     * Set to only movies that have not already been looked up / updated with metadata
      *
-     * @type {String}
+     * @type {Array}
      */
-    const currentMovie = remainingMovies[i]
+    let remainingMovies = movieTitles.filter(currentMovie => {
+      return UPDATED_MOVIES.map(data => data.Title).indexOf(currentMovie) === -1 && NOT_FOUND_MOVIES.indexOf(currentMovie) === -1
+    })
 
-    /**
-     * Set a request timeout, if the {fetchMetadata} Function takes more than 90 seconds,
-     * then abort the connection and run this function again
-     *
-     * @type {Timeout Object}
-     */
-    let abortTimeout = setTimeout(() => {
-      signalController.abort()
-      setMetadata(options,movieTitles)
-    }, options.timeout)
-
-    /**
-     * Fetch the metadata the current movie in the loop
-     *
-     * @type {Object}
-     */
-    fetchedMetadata = await fetchMetadata(options.key, currentMovie)
-
-    /**
-     * Clear the timeout after the metadata has been fetched and the request didn't timeout (resolved)
-     */
-    clearTimeout(abortTimeout)
-
-    // Check if the request was aborted
-    if(fetchedMetadata === 'AbortError') {
-      // Break out of the loop, allowing the Function to restart
-      break
-    }
-    // End - Check if the request was aborted
-
-    // Ensure that there was no errors when retrieving the metadata (returned true)
-    if(fetchedMetadata !== 'Not Found') {
-      // Add the updated movie Object to the {UPDATED_MOVIES} Array
-      UPDATED_MOVIES.push(fetchedMetadata)
-
-      // Check if {verbose} parameter is enabled
-      if(options.verbose && !options.progress) {
-        console.log(`${(UPDATED_MOVIES.length + NOT_FOUND_MOVIES.length).toString().padStart(totalMoviesCount.toString().length, '0')}/${totalMoviesCount} - \x1b[32mUpdated:\x1b[0m\t"${fetchedMetadata.Title}"`)
-      }
-      // End - Check if {verbose} parameter is enabled
+    // Loop through each of the {remainingMovies}
+    for(let i=0;i<remainingMovies.length;i++) {
 
       /**
-       * Run the {onUpdate} Method parameter, with the metadata just fetched, and
-       * whether or not the metadata was fetched (true) or not found (false)
+       * The current movie title in the loop
+       *
+       * @type {String}
+       */
+      const currentMovie = remainingMovies[i]
+
+      /**
+       * Set a request timeout, if the {fetchMetadata} Function takes more than 90 seconds,
+       * then abort the connection and run this function again
+       *
+       * @type {Timeout Object}
+       */
+      let abortTimeout = setTimeout(() => {
+        signalController.abort()
+        _setMetadata(options,movieTitles)
+      }, options.timeout)
+
+      /**
+       * Fetch the metadata the current movie in the loop
        *
        * @type {Object}
        */
-      options.onUpdate({ movie: fetchedMetadata, fetched: true })
-    }
-    else if(fetchedMetadata === 'Not Found') {
-      // Add the not found movie title to the {NOT_FOUND_MOVIES} Array
-      NOT_FOUND_MOVIES.push(currentMovie)
-
-      // Check if {verbose} parameter is enabled
-      if(options.verbose && !options.progress) {
-        console.log(`${(UPDATED_MOVIES.length + NOT_FOUND_MOVIES.length).toString().padStart(totalMoviesCount.toString().length, '0')}/${totalMoviesCount} - \x1b[31mNot Found:\x1b[0m\t"${currentMovie}"`)
-      }
-      // End - Check if {verbose} parameter is enabled
+      fetchedMetadata = await fetchMetadata(options.key, currentMovie)
 
       /**
-       * Run the {onUpdate} Method parameter, with the metadata just fetched, and
-       * whether or not the metadata was fetched (true) or not found (false)
-       *
-       * @type {Object}
+       * Clear the timeout after the metadata has been fetched and the request didn't timeout (resolved)
        */
-      options.onUpdate({ movie: currentMovie, fetched: false })
-    }
-    // End - Ensure that there was no errors when retrieving the metadata
+      clearTimeout(abortTimeout)
 
-    // Check if {progress} parameter is enabled
-    if(options.progress && !options.verbose) {
-      // Increment the progress bar by one (1) if enabled
-      progressBar.increment()
+      // Check if the request was aborted
+      if(fetchedMetadata === 'AbortError') {
+        // Break out of the loop, allowing the Function to restart
+        break
+      }
+      // End - Check if the request was aborted
+
+      // Ensure that there was no errors when retrieving the metadata (returned true)
+      if(fetchedMetadata !== 'Not Found') {
+        // Add the updated movie Object to the {UPDATED_MOVIES} Array
+        UPDATED_MOVIES.push(fetchedMetadata)
+
+        // Check if {verbose} parameter is enabled
+        if(options.verbose && !options.progress) {
+          console.log(`${(UPDATED_MOVIES.length + NOT_FOUND_MOVIES.length).toString().padStart(totalMoviesCount.toString().length, '0')}/${totalMoviesCount} - \x1b[32mUpdated:\x1b[0m\t"${fetchedMetadata.Title}"`)
+        }
+        // End - Check if {verbose} parameter is enabled
+
+        /**
+         * Run the {onUpdate} Method parameter, with the metadata just fetched, and
+         * whether or not the metadata was fetched (true) or not found (false)
+         *
+         * @type {Object}
+         */
+        options.onUpdate({ movie: fetchedMetadata, fetched: true })
+      }
+      else if(fetchedMetadata === 'Not Found') {
+        // Add the not found movie title to the {NOT_FOUND_MOVIES} Array
+        NOT_FOUND_MOVIES.push(currentMovie)
+
+        // Check if {verbose} parameter is enabled
+        if(options.verbose && !options.progress) {
+          console.log(`${(UPDATED_MOVIES.length + NOT_FOUND_MOVIES.length).toString().padStart(totalMoviesCount.toString().length, '0')}/${totalMoviesCount} - \x1b[31mNot Found:\x1b[0m\t"${currentMovie}"`)
+        }
+        // End - Check if {verbose} parameter is enabled
+
+        /**
+         * Run the {onUpdate} Method parameter, with the metadata just fetched, and
+         * whether or not the metadata was fetched (true) or not found (false)
+         *
+         * @type {Object}
+         */
+        options.onUpdate({ movie: currentMovie, fetched: false })
+      }
+      // End - Ensure that there was no errors when retrieving the metadata
+
+      // Check if {progress} parameter is enabled
+      if(options.progress && !options.verbose) {
+        // Increment the progress bar by one (1) if enabled
+        progressBar.increment()
+      }
+      // End - Check if {progress} parameter is enabled
     }
-    // End - Check if {progress} parameter is enabled
+    // End - Loop through each of the {remainingMovies}
+
+    // Check if the metadata fetch was aborted
+    if(fetchedMetadata === 'AbortError' || fetchedMetadata === null) {
+      await _setMetadata(options,movieTitles)
+    }
+    // End - Check if the metadata fetch was aborted
   }
-  // End - Loop through each of the {remainingMovies}
 
   // Check if the metadata fetch was aborted
-  if(fetchedMetadata !== 'AbortError') {
+  if(fetchedMetadata === 'AbortError' || fetchedMetadata === null) {
+    await _setMetadata(options,movieTitles)
+  }
+  // End - Check if the metadata fetch was aborted
+
+  // Check if the metadata fetch was aborted
+  if(fetchedMetadata !== 'AbortError' && fetchedMetadata !== null) {
     return {
       updatedMovies: UPDATED_MOVIES,
       notFoundMovies: NOT_FOUND_MOVIES

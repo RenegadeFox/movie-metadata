@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-    A simple utility to easily fetch movie metadata from an Array of movie titles using the API from the Open Movie Database.
+    A simple utility to easily fetch movie metadata from a list of movie titles using the API from <a href="https://www.omdbapi.com">the Open Movie Database</a>.
 </p>
 
 <p align="center">    
