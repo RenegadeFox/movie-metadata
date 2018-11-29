@@ -121,7 +121,21 @@ module.exports = async (userOptions) => {
       *   status: true|false            // Boolean
       * }
       */
-     onUpdate() {}
+     onUpdate() {},
+
+     /**
+      * Name of the Object key representing the {movie title}
+      *
+      * @type {String}
+      */
+     titleKey: 'title',
+
+     /**
+      * Name of the Object key representing the {release year}
+      *
+      * @type {String}
+      */
+     yearKey: 'year'
    }
 
   /**
@@ -338,7 +352,27 @@ async function setMetadata(options, movieTitles) {
      * @type {Array}
      */
     let remainingMovies = movieTitles.filter(currentMovie => {
-      return UPDATED_MOVIES.map(data => data.Title).indexOf(currentMovie) === -1 && NOT_FOUND_MOVIES.indexOf(currentMovie) === -1
+      const year = typeof currentMovie[options.yearKey] !== 'undefined' ? currentMovie[options.yearKey] : false
+      const title = typeof currentMovie[options.titleKey] !== 'undefined' ? currentMovie[options.titleKey] : currentMovie
+
+      // Check if {movieTitles} contains the title + year
+      if(year) {
+        // Check if the title+year is already in the {UPDATED_MOVIES} dictionary (Array of Objects)
+        if (UPDATED_MOVIES.filter(data => data.Title.toLowerCase() !== title.toLowerCase() && parseInt(data.Year) !== parseInt(year)).length === 0) {
+          return true
+        }
+
+        // Check if the title+year is already in the {NOT_FOUND_MOVIES} dictionary (Array of Objects)
+        if (NOT_FOUND_MOVIES.filter(data => data.Title.toLowerCase() !== title.toLowerCase() && parseInt(data.Year) !== parseInt(year)).length === 0) {
+          return true
+        }
+      } else {
+        // Otherwise, just check if the movie title is already in the {UPDATED_MOVIES} or {NOT_FOUND_MOVIES} Array
+        return UPDATED_MOVIES.map(data => data.Title).indexOf(currentMovie) === -1 && NOT_FOUND_MOVIES.indexOf(currentMovie) === -1
+      }
+      // End - Check if {movieTitles} contains the title + year
+
+      return false
     })
 
     // Loop through each of the {remainingMovies}
@@ -349,7 +383,16 @@ async function setMetadata(options, movieTitles) {
        *
        * @type {String}
        */
-      const currentMovie = remainingMovies[i]
+      let currentMovie = remainingMovies[i]
+      let title = currentMovie
+      let year = ''
+
+      // Check if {title} contains the title+year of the movie (as an Object)
+      if(typeof currentMovie !== 'string') {
+        title = currentMovie[options.titleKey]
+        year = typeof currentMovie[options.yearKey] !== 'undefined' ? currentMovie[options.yearKey] : false
+      }
+      // End - Check if {title} contains the title+year of the movie (as an Object)
 
       /**
        * Set a request timeout, if the {fetchMetadata} Function takes more than 90 seconds,
@@ -367,7 +410,7 @@ async function setMetadata(options, movieTitles) {
        *
        * @type {Object}
        */
-      fetchedMetadata = await fetchMetadata(options.key, currentMovie)
+      fetchedMetadata = await fetchMetadata(options.key, title, year)
 
       /**
        * Clear the timeout after the metadata has been fetched and the request didn't timeout (resolved)
@@ -394,29 +437,37 @@ async function setMetadata(options, movieTitles) {
 
         /**
          * Run the {onUpdate} Method parameter, with the metadata just fetched, and
-         * whether or not the metadata was fetched (true) or not found (false)
+         * whether or not the metadata was found (true) or not found (false)
          *
          * @type {Object}
          */
-        options.onUpdate({ movie: fetchedMetadata, fetched: true })
+        options.onUpdate({ movie: fetchedMetadata, found: true })
       }
       else if(fetchedMetadata === 'Not Found') {
-        // Add the not found movie title to the {NOT_FOUND_MOVIES} Array
-        NOT_FOUND_MOVIES.push(currentMovie)
+
+        // Check if year was provided
+        if(year) {
+          // Add the not found movie title+year to the {NOT_FOUND_MOVIES} Array
+          NOT_FOUND_MOVIES.push({ title, year })
+        } else {
+          // Add the not found movie title to the {NOT_FOUND_MOVIES} Array
+          NOT_FOUND_MOVIES.push(title)
+        }
+        // End - Check if year was provided
 
         // Check if {verbose} parameter is enabled
         if(options.verbose && !options.progress) {
-          console.log(`${(UPDATED_MOVIES.length + NOT_FOUND_MOVIES.length).toString().padStart(totalMoviesCount.toString().length, '0')}/${totalMoviesCount} - \x1b[31mNot Found:\x1b[0m\t"${currentMovie}"`)
+          console.log(`${(UPDATED_MOVIES.length + NOT_FOUND_MOVIES.length).toString().padStart(totalMoviesCount.toString().length, '0')}/${totalMoviesCount} - \x1b[31mNot Found:\x1b[0m\t"${title}"`)
         }
         // End - Check if {verbose} parameter is enabled
 
         /**
          * Run the {onUpdate} Method parameter, with the metadata just fetched, and
-         * whether or not the metadata was fetched (true) or not found (false)
+         * whether or not the metadata was found (true) or not found (false)
          *
          * @type {Object}
          */
-        options.onUpdate({ movie: currentMovie, fetched: false })
+        options.onUpdate({ movie: title, found: false })
       }
       // End - Ensure that there was no errors when retrieving the metadata
 
@@ -461,9 +512,11 @@ async function setMetadata(options, movieTitles) {
  *
  * @return {Object}      Metadata for the specified movie
  */
-async function fetchMetadata(apiKey, movieTitle) {
+async function fetchMetadata(apiKey, movieTitle, movieYear) {
+  movieYear = (typeof movieYear !== 'undefined' && movieYear) ? `&y=${movieYear}` : ''
+
   // @return {Object} Metadata Object for the specified movie
-  return fetch(new URL(`http://www.omdbapi.com/?t=${encodeURIComponent(movieTitle)}&type=movie&apikey=${apiKey}`),
+  return fetch(new URL(`http://www.omdbapi.com/?t=${encodeURIComponent(movieTitle)}&type=movie&apikey=${apiKey}${movieYear}`),
     { signal: signalController.signal })
     .then(request => request.json())
     .then(jsonData => {

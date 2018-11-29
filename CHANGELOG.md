@@ -1,3 +1,9 @@
+## [1.2.4] -2018-11-29
+
+### Added
+- Can now accept an `Array` of `Objects` containing the movie title and year (for more accurate searches)
+- `titleKey` and `yearKey` parameters which represent the property for movie title and year in the above Objects
+
 ## [1.0.3] -2018-11-29
 
 ### Added
