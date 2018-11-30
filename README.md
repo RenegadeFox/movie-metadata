@@ -46,9 +46,9 @@ How to use `movie-metadata` with the Command-Line Interface (CLI).
 ```bash
 $ getmetadata --key YOUR_API_KEY  /Users/me/moviesList.json
 ```
-This will create a `moviesList-metadata.json` and `moviesList-notfound.json` file in the `/Users/me/` directory. 
+This will create a `moviesList-metadata.json` and `moviesList-notFound.json` file in the `/Users/me/` directory.
 
->Note: *The `moviesList-notfound.json` file is only created if some movies in the list were not found on the omdb API server.*
+>Note: *The `moviesList-notFound.json` file is only created if some movies in the list were not found on the omdb API server.*
 
 The `moviesList-metadata.json` file will contain an Array of Objects containing each movies respective metadata fetched from omdb's API server [omdbapi.com](https://www.omdbapi.com).
 
@@ -66,7 +66,7 @@ async function getIt() {
         key: 'YOUR_API_KEY',
         source: ['dead man\'s chest', 'at world\'s end', 'ralph breaks the internet', 'Ocean\'s Eight']
     })
-    
+
     console.log(metadata)
 }
 
@@ -74,7 +74,7 @@ getIt()
 
 // Outputs
 
-{ fetchedMetadata: [ 
+{ fetchedMetadata: [
     {
         Title: 'Pirates of the Caribbean: Dead Man\'s Chest',
         Year: '2006',
@@ -188,7 +188,7 @@ $ getmetadata -k YOUR_API_KEY -s /movies/list.json --verbose
 ```
 <img src="https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Verbose Parameter.png" />
 
-### `--destination|-d`
+### `--dest|-d`
 *Where to save the JSON file with metadata*
 
 - **Default**: `Same path as source with '-metadata' appended`
@@ -199,15 +199,15 @@ $ getmetadata -k YOUR_API_KEY -s /movies/list.json --verbose
 ```bash
 $ getmetadata -k YOUR_API_KEY -s /movies/list.json -d /movies/metadata.json
 // or
-$ getmetadata -k YOUR_API_KEY -s /movies/list.json --destination /movies/metadata.json
+$ getmetadata -k YOUR_API_KEY -s /movies/list.json --dest /movies/metadata.json
 ```
 
-### `--notfound|-n`
+### `--notFound|-n`
 *Where to save the JSON file that holds the movies that were not found on the omdb API server*
 
->Note: the `notfound` file will only be create if there was any movies that were not found on the omdb API server.
+>Note: the `notFound` file will only be create if there was any movies that were not found on the omdb API server.
 
-- **Default**: `Same path as source with '-notfound' appended`
+- **Default**: `Same path as source with '-notFound' appended`
 - **Type**: `String`
 
 **Example**
@@ -215,12 +215,12 @@ $ getmetadata -k YOUR_API_KEY -s /movies/list.json --destination /movies/metadat
 ```bash
 $ getmetadata -k YOUR_API_KEY -s /movies/list.json -n /movies/metadata.json
 // or
-$ getmetadata -k YOUR_API_KEY -s /movies/list.json --notfound /movies/notfound.json
+$ getmetadata -k YOUR_API_KEY -s /movies/list.json --notFound /movies/notFound.json
 ```
 
 ### `--overwrite|-o`
 *Whether or not to overwrite the source file with the metadata JSON data*
->Note: If enabled, this disables `destination` parameter.
+>Note: If enabled, this disables `dest` parameter.
 
 - **Default**: `false`
 - **Type**: `Boolean`
@@ -313,7 +313,7 @@ getMetadata({
   // Do stuff with the Array of movies (with metadata)
 })
 ```
-This will display a CLI progress bar using the [`cli-progress`](https://www.npmjs.com/package/cli-progress) module. 
+This will display a CLI progress bar using the [`cli-progress`](https://www.npmjs.com/package/cli-progress) module.
 
 <img src="https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Progress Parameter.gif" />
 
@@ -341,7 +341,7 @@ This will output each movie title to the console, along with whether or not it w
 
 <img src="https://raw.githubusercontent.com/rootr/movie-metadata/master/img/movie-metadata - Verbose Parameter.png" />
 
-### `destination`
+### `dest`
 *Where to save the fetched Array of movie metadata*
 
 >Note: If set to false, the fetched movie metadata will be returned as a Promise of an Object with two properties `fetchedMetadata`:`[Object]` and `notFoundMovies`:`[String]`.
@@ -357,18 +357,18 @@ const { getMetadata } = require('movie-metadata')
 getMetadata({
     key: 'YOUR_API_KEY',
     source: 'path/to/list/of/movies.json',
-    destination: false
+    dest: false
 }).then(metadata => {
   // Do stuff with the Array of movies (with metadata)
 })
 ```
 
-### `notfound`
+### `notFound`
 *Where to save the JSON file that holds the movies that were not found on the omdb API server*
 
 >Note: If set to false, the fetched movie metadata will be returned as a Promise of an Object with two properties `fetchedMetadata`:`[Object]` and `notFoundMovies`:`[String]`.
 
-- **Default**: `Same path as source with '-notfound' appended`
+- **Default**: `Same path as source with '-notFound' appended`
 - **Type**: `String|Boolean`
 
 **Example**
@@ -379,7 +379,7 @@ const { getMetadata } = require('movie-metadata')
 getMetadata({
     key: 'YOUR_API_KEY',
     source: 'path/to/list/of/movies.json',
-    notfound: false
+    notFound: false
 }).then(metadata => {
   // Do stuff with the Array of movies (with metadata)
 })
@@ -387,7 +387,7 @@ getMetadata({
 
 ### `overwrite`
 *Whether or not to overwrite the source file with the metadata JSON data*
->Note: If enabled, this disables `destination` parameter. This is automatically disabled if `destination` parameter is disabled (`false`)
+>Note: If enabled, this disables `dest` parameter. This is automatically disabled if `dest` parameter is disabled (`false`)
 
 - **Default**: `false`
 - **Type**: `Boolean`

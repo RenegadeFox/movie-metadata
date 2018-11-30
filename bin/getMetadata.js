@@ -1,6 +1,6 @@
 #! /usr/bin/env node
-const { getMetadata } = require('../src/')
-const commandLineArgs = require('command-line-args')
+const { getMetadata } = require('../src/');
+const commandLineArgs = require('command-line-args');
 
 /**
  * Available command-line arguments and options
@@ -19,11 +19,9 @@ const options = commandLineArgs([
   // {Boolean} Whether or not to overwrite the {source} JSON file with the updated JSON metadata
   { name: 'overwrite', alias: 'o', type: Boolean },
   // {String} Path where to save the updated movies to
-  { name: 'destination', alias: 'd', type: String },
+  { name: 'dest', alias: 'd', type: String },
   // {String} Path where to save the movies that are not found on the omdb API server
-  { name: 'notfound', alias: 'n', type: String },
-  // {String} Path where to save the movies that are not found on the omdb API server
-  { name: 'timeout', alias: 't', type: Number }
-])
+  { name: 'notFound', alias: 'n', type: String }
+]);
 
-getMetadata(options).catch(err => console.error(err))
+getMetadata(options).catch(err => console.error(err));

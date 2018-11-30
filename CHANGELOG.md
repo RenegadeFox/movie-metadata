@@ -1,3 +1,12 @@
+## [2.2.5] -2018-11-30
+
+## Breaking
+- The `--destination` and `destination` options are no longer valid. They are now `--dest` and `dest` respectively.
+- The `--notfound` and `notfound` options are not longer valid. They are not `--notFound` and `notFound` respectively.
+
+### Changed
+- Completely refactored the metadata source code to comply with [node-style-guide](https://github.com/felixge/node-style-guide)
+
 ## [1.2.4] -2018-11-29
 
 ### Added
