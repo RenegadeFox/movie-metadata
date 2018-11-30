@@ -171,7 +171,6 @@ function beforeFetch ({ options, currentMovie, movieYear }) {
 
   let abortTimeout = setTimeout(() => {
     _signalController.abort();
-    getMetadata(options);
   }, options.timeout);
 
   return { title, year, abortTimeout };
@@ -185,34 +184,35 @@ async function getMetadata (options) {
 
     const { title, year, abortTimeout } = beforeFetch({ options, currentMovie, movieYear });
 
-    const metadata = await fetchMetadata({ options, title, year });
+    try {
+      const metadata = await fetchMetadata({ options, title, year });
 
-    clearTimeout(abortTimeout);
+      clearTimeout(abortTimeout);
 
-    const status = afterFetch({ options, metadata, title, year });
-
-    if (status.isAborted) {
-      break;
-    };
+      await afterFetch({ options, metadata, title, year });
+    } catch (err) {
+      await getMetadata(options);
+    }
   };
-
-  return { fetched: _updatedMovies, notFound: _notFoundMovies };
 };
 
 async function fetchMetadata ({ options, title, year }) {
   title = encodeURIComponent(title);
   year = year ? `&y=${year}` : '';
   const apiUrl = new URL(`http://www.omdbapi.com/?t=${title}&type=movie&apikey=${options.key}${year}`);
-  let jsonData = null;
 
-  try {
-    const response = await fetch(apiUrl, { signal: _signalController.signal });
-    jsonData       = await response.json();
-  } catch (err) {
-    throw err;
-  };
-
-  return jsonData.Response === 'True' ? jsonData : 'Not Found';
+   return fetch(apiUrl, { signal: _signalController.signal })
+    .then(request => request.json())
+    .then(jsonData => {
+      if (jsonData.Response === 'True') {
+        return jsonData;
+      } else {
+        return 'Not Found';
+      }
+    },
+    err => {
+      throw err;
+    });
 };
 
 function afterFetch ({ options, metadata, title, year }) {
@@ -222,7 +222,9 @@ function afterFetch ({ options, metadata, title, year }) {
   movie             = isFound ? metadata : movie;
 
   if (isAborted) {
-    return { isFound, isAborted };
+    return { isAborted, isFound };
+  } else {
+    options.onUpdate({ movie, isFound });
   };
 
   if (isFound) {
@@ -234,8 +236,6 @@ function afterFetch ({ options, metadata, title, year }) {
 
     step.updateNotFound({ options, movie: title });
   };
-
-  options.onUpdate({ movie, isFound });
 
   return { isAborted, isFound };
 };
