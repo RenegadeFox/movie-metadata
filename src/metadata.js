@@ -51,19 +51,18 @@ async function mergeOptions(userOptions) {
 async function validateOptions (options) {
   // Ensure the {source} and {key} parameters were provided
   if (_.isUndefined(options.source) || _.isUndefined(options.key)) {
-    throw !_.isUndefined(options.source) ? _errors.noSource : _errors.noKey;
+    throw _.isUndefined(options.source) ? _errors.noSource : _errors.noKey;
   };
 
   const state = {
-    isSaveToFile   : options.dest && options.notfound,
+    isSaveToFile   : options.dest && options.notFound,
     isArraySource  : _.isArray(options.source)
   };
 
   if (isJsonPath(options.source)) {
+    options.sourcePath = options.source;
     options.source = await fs.readJson(resolve(options.source)).catch(err => console.error(err));
-  };
-
-  if (!state.isArraySource && !isJsonPath(options.source)) {
+  } else if (!state.isArraySource) {
     options.source = options.source.split(options.splitter);
   };
 
@@ -242,11 +241,17 @@ function afterFetch ({ options, metadata, title, year }) {
 };
 
 async function saveMetadataToJson ({ options }) {
-  if (isJsonPath(options.source)) {
-    fs.writeJson(resolve(options.source, '../', options.dest), _updatedMovies, {spaces: '\t'});
+  const sourceName = options.sourcePath.replace('.json', '');
+  options.dest = options.dest.replace('%source%', sourceName);
+  options.notFound = options.notFound.replace('%source%', sourceName);
+
+  if (isJsonPath(options.sourcePath)) {
+    if (_updatedMovies.length) {
+      fs.writeJson(resolve(options.sourcePath, '../', options.dest), _updatedMovies, {spaces: '\t'});
+    }
 
     if (_notFoundMovies.length) {
-      fs.writeJson(resolve(options.source, '../', options.notfound), _notFoundMovies, {spaces: '\t'});
+      fs.writeJson(resolve(options.sourcePath, '../', options.notFound), _notFoundMovies, {spaces: '\t'});
     };
   };
 };
